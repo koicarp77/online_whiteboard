@@ -1,0 +1,57 @@
+# General
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# C/C++ build artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+*.pdb
+*.ilk
+*.dSYM/
+
+# Go build artifacts
+*.test
+*.exe
+*.out
+*.prof
+*.cover
+*.cache
+*.trace
+
+# Go workspace
+go.work
+
+# Go tooling dirs
+bin/
+
+# Temporary/runtime files
+*.tmp
+*.swp
+*.swo
+*.bak
+.tmp/
+tmp/
+
+# Docker
+*.pid
+
+# IDE/editor
+.vscode/
+.idea/
+*.iml
+
+# Project-specific
+c++/main
+c++/server
+go/tmp/
