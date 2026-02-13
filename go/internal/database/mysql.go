@@ -13,11 +13,11 @@ import (
 var DB *gorm.DB
 
 type MySQLConfig struct {//封装连接 MySQL 所需的配置项
-	Host     string
-	Port     string
+	Host     string //数据库主机地址
+	Port     string //端口
 	User     string
 	Password string
-	Database string
+	Database string //数据库名称
 }
 
 func InitMySQL(config MySQLConfig) error {//建立数据库连接，配置连接池，并将全局变量 DB 赋值

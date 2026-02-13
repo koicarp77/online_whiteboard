@@ -15,7 +15,7 @@ type Room struct {//房间数据模型，对应数据库表，带有 GORM 和 JS
 	Name        string     `gorm:"type:varchar(255)" json:"name"`
 	Description string     `gorm:"type:text" json:"description"`
 	OwnerID     string     `gorm:"type:varchar(36);index" json:"owner_id"`
-	MaxUsers    int        `gorm:"default:100" json:"max_users"`
+	MaxUsers    int        `gorm:"default:100" json:"max_users"`//默认房间最大人数为 100
 	Status      RoomStatus `gorm:"type:varchar(20);default:'active'" json:"status"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
