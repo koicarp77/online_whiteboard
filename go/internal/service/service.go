@@ -4,24 +4,36 @@ import (
 	"online-whiteboard-go-server/internal/models"
 	"online-whiteboard-go-server/internal/repository"
 	"time"
+	"context"//用于传递超时、取消信号，贯穿整个请求生命周期
+	"errors"
 	"github.com/google/uuid"
 )
 
 type RoomService interface {
-	CreateRoom(req models.CreateRoomRequest) (*models.RoomResponse, error)//创建新房间，接收请求参数，返回房间响应
-	ListActiveRooms(limit, offset int) ([]models.RoomResponse, error)//分页查询活跃房间列表
-	GetRoomByID(id string) (*models.RoomResponse, error)//根据 ID 查询单个房间信息
+	CreateRoom(ctx context.Context, req models.CreateRoomRequest) (*models.RoomResponse, error)//创建新房间，接收请求参数，返回房间响应
+	ListActiveRooms(ctx context.Context, limit, offset int) ([]models.RoomResponse, error)//分页查询活跃房间列表
+	GetRoomByID(ctx context.Context, id string) (*models.RoomResponse, error)//根据 ID 查询单个房间信息
 }
 
 type roomService struct {
 	roomRepo repository.RoomRepository//房间仓储接口（用于MySQL 操作）
+	cacheRepo repository.CacheRepository//缓存仓储接口（用于 Redis 操作）
+
 }
 
-func NewRoomService(roomRepo repository.RoomRepository) RoomService {
-	return &roomService{roomRepo: roomRepo}
+func NewRoomService(roomRepo repository.RoomRepository, cacheRepo repository.CacheRepository) RoomService {
+	return &roomService{roomRepo: roomRepo, cacheRepo: cacheRepo}
 }
 
-func (s *roomService) CreateRoom(req models.CreateRoomRequest) (*models.RoomResponse, error) {
+func (s *roomService) CreateRoom(ctx context.Context, req models.CreateRoomRequest) (*models.RoomResponse, error) {
+	// 业务校验
+	if req.MaxUsers <= 0 {
+		req.MaxUsers = 100
+	}
+	if req.MaxUsers > 100 {
+		return nil, errors.New("max_users 不能超过 100")
+	}
+
 	room := &models.Room{
 		ID:          uuid.New().String(),
 		Name:        req.Name,
@@ -32,9 +44,14 @@ func (s *roomService) CreateRoom(req models.CreateRoomRequest) (*models.RoomResp
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
-	if err := s.roomRepo.Create(room); err != nil {
+	//保存到 MySQL
+	if err := s.roomRepo.Create(ctx,room); err != nil {
 		return nil, err
 	}
+	//写入 Redis 
+	_ = s.cacheRepo.SetRoomInfo(ctx, room.ID, room)
+	_ = s.cacheRepo.AddToActiveSet(ctx, room.ID)
+
 	return &models.RoomResponse{
 		ID:          room.ID,
 		Name:        room.Name,
@@ -47,8 +64,8 @@ func (s *roomService) CreateRoom(req models.CreateRoomRequest) (*models.RoomResp
 	}, nil
 }
 
-func (s *roomService) ListActiveRooms(limit, offset int) ([]models.RoomResponse, error) {
-	rooms, err := s.roomRepo.ListActive(limit, offset)
+func (s *roomService) ListActiveRooms(ctx context.Context, limit, offset int) ([]models.RoomResponse, error) {
+	rooms, err := s.roomRepo.ListActive(ctx, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +85,8 @@ func (s *roomService) ListActiveRooms(limit, offset int) ([]models.RoomResponse,
 	return responses, nil
 }
 
-func (s *roomService) GetRoomByID(id string) (*models.RoomResponse, error) {
-	room, err := s.roomRepo.FindByID(id)
+func (s *roomService) GetRoomByID(ctx context.Context, id string) (*models.RoomResponse, error) {
+	room, err := s.roomRepo.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
