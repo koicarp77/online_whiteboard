@@ -1,15 +1,14 @@
 package service
 
 import (
-<<<<<<< HEAD
 	"encoding/json"
 	"errors"
 	"context"//用于传递超时、取消信号，贯穿整个请求生命周期
-=======
->>>>>>> df61da8 (first save)
 	"online-whiteboard-go-server/internal/models"
 	"online-whiteboard-go-server/internal/repository"
 	"time"
+	"context"//用于传递超时、取消信号，贯穿整个请求生命周期
+	"errors"
 	"github.com/google/uuid"
 )
 
