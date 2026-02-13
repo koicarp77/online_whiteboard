@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"online-whiteboard-go-server/internal/models"
 	"context"
+	"online-whiteboard-go-server/internal/models"
 )
 
 type RoomRepository interface {
