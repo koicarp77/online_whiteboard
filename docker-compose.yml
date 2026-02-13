@@ -42,10 +42,14 @@ services:
     container_name: proj-cpp-server
     ports:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> df61da8 (first save)
       - "8080:8080"
     volumes:
       - ./c++:/app
     command: ["python3", "/app/watch.py"]
+<<<<<<< HEAD
 =======
       - "8080:8080"  
       - "3000:3000"  # 【增量新增】适配Boost.Asio WebSocket | 合作者无需注释，不影响原有使用
@@ -53,6 +57,8 @@ services:
       - ./c++:/app  
     command: ["python3", "/app/watch.py"]  # 【核心保留】保持原有启动指令，合作者零修改可用
 >>>>>>> c7039e2 (init: 修改了服务器设置，包含Redis订阅代码和Docker配置)
+=======
+>>>>>>> df61da8 (first save)
     depends_on:
       mysql:
         condition: service_healthy
@@ -63,7 +69,10 @@ services:
       MYSQL_PORT: 3306
       REDIS_HOST: redis
       REDIS_PORT: 6379
+<<<<<<< HEAD
       REDIS_PASSWORD: 123456
+=======
+>>>>>>> df61da8 (first save)
     restart: always
 
   go-server:
@@ -84,10 +93,15 @@ services:
     environment:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
+<<<<<<< HEAD
       MYSQL_USER: root
       MYSQL_PASSWORD: 123456
       MYSQL_DATABASE: proj_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: 123456
+=======
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+>>>>>>> df61da8 (first save)
     restart: always
