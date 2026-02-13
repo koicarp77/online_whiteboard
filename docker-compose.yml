@@ -41,11 +41,10 @@ services:
     build: ./c++
     container_name: proj-cpp-server
     ports:
-      - "8080:8080"  
-      - "3000:3000"  # 【增量新增】适配Boost.Asio WebSocket | 合作者无需注释，不影响原有使用
+      - "8080:8080"
     volumes:
-      - ./c++:/app  
-    command: ["python3", "/app/watch.py"]  # 【核心保留】保持原有启动指令，合作者零修改可用
+      - ./c++:/app
+    command: ["python3", "/app/watch.py"]
     depends_on:
       mysql:
         condition: service_healthy
@@ -56,7 +55,6 @@ services:
       MYSQL_PORT: 3306
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: 123456  # 【增量新增】Redis密码（仅自身代码使用）| 合作者无需注释，不影响原有逻辑
     restart: always
 
   go-server:
