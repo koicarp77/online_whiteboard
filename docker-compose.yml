@@ -41,10 +41,18 @@ services:
     build: ./c++
     container_name: proj-cpp-server
     ports:
+<<<<<<< HEAD
       - "8080:8080"
     volumes:
       - ./c++:/app
     command: ["python3", "/app/watch.py"]
+=======
+      - "8080:8080"  
+      - "3000:3000"  # 【增量新增】适配Boost.Asio WebSocket | 合作者无需注释，不影响原有使用
+    volumes:
+      - ./c++:/app  
+    command: ["python3", "/app/watch.py"]  # 【核心保留】保持原有启动指令，合作者零修改可用
+>>>>>>> c7039e2 (init: 修改了服务器设置，包含Redis订阅代码和Docker配置)
     depends_on:
       mysql:
         condition: service_healthy
