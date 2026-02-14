@@ -1,57 +1,18 @@
-# General
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# C/C++ build artifacts
+# C++编译产物
+main
 *.o
-*.obj
-*.a
-*.lib
-*.so
-*.dylib
-*.dll
-*.exe
 *.out
-*.app
-*.pdb
-*.ilk
-*.dSYM/
-
-# Go build artifacts
-*.test
-*.exe
-*.out
-*.prof
-*.cover
-*.cache
-*.trace
-
-# Go workspace
-go.work
-
-# Go tooling dirs
-bin/
-
-# Temporary/runtime files
-*.tmp
-*.swp
-*.swo
-*.bak
-.tmp/
-tmp/
-
-# Docker
-*.pid
-
-# IDE/editor
-.vscode/
+# Docker临时文件
+.dockerignore
+*.dockerfile.bak
+# 敏感信息
+.env
+*.secret
+# 日志
+*.log
+# IDE缓存
 .idea/
-*.iml
-
-# Project-specific
-c++/main
-c++/server
-go/tmp/
+.vscode/
+*.swp
+# 系统文件
+.DS_Store
