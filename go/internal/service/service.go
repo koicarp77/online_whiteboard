@@ -1,11 +1,12 @@
 package service
 
 import (
+	"encoding/json"
+	"errors"
+	"context"//用于传递超时、取消信号，贯穿整个请求生命周期
 	"online-whiteboard-go-server/internal/models"
 	"online-whiteboard-go-server/internal/repository"
 	"time"
-	"context"//用于传递超时、取消信号，贯穿整个请求生命周期
-	"errors"
 	"github.com/google/uuid"
 )
 
@@ -51,6 +52,23 @@ func (s *roomService) CreateRoom(ctx context.Context, req models.CreateRoomReque
 	//写入 Redis 
 	_ = s.cacheRepo.SetRoomInfo(ctx, room.ID, room)
 	_ = s.cacheRepo.AddToActiveSet(ctx, room.ID)
+
+	eventPayload, _ := json.Marshal(map[string]interface{}{
+		"event": "room_created",
+		"room": map[string]interface{}{
+			"id":          room.ID,
+			"name":        room.Name,
+			"description": room.Description,
+			"owner_id":    room.OwnerID,
+			"max_users":   room.MaxUsers,
+			"status":      room.Status,
+			"created_at":  room.CreatedAt,
+			"updated_at":  room.UpdatedAt,
+		},
+	})
+	if len(eventPayload) > 0 {
+		_ = s.cacheRepo.PublishRoomCreated(ctx, string(eventPayload))
+	}
 
 	return &models.RoomResponse{
 		ID:          room.ID,

@@ -17,4 +17,5 @@ type CacheRepository interface {
 	SetRoomInfo(ctx context.Context, roomID string, room *models.Room) error//设置房间信息缓存
 	GetRoomInfo(ctx context.Context, roomID string) (*models.Room, error)//获取房间信息
 	AddToActiveSet(ctx context.Context, roomID string) error//将房间 ID 添加到活跃房间集合
+	PublishRoomCreated(ctx context.Context, payload string) error//发布房间创建事件到频道
 }

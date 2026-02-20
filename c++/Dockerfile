@@ -9,6 +9,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositorie
     libc-dev \
     curl-dev \
     boost-dev \
+    hiredis-dev \
     python3
 
 # 设置工作目录
@@ -18,7 +19,7 @@ WORKDIR /app
 COPY . .
 
 # 编译代码（根据你的需求调整链接库参数）
-RUN g++ -o server main.cpp -std=c++17 -lpthread -lcurl -lboost_system
+RUN g++ -o server main.cpp functions.cpp -std=c++17 -lpthread -lcurl -lboost_system -lhiredis
 
 # 暴露端口
 EXPOSE 8080

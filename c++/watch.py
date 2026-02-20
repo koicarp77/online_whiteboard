@@ -30,10 +30,12 @@ def run_server():
             "-o",
             "server",
             "main.cpp",
+            "functions.cpp",
             "-std=c++17",
             "-lpthread",
             "-lcurl",
             "-lboost_system",
+            "-lhiredis",
         ],
         check=False,
     )

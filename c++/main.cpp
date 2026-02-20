@@ -4,11 +4,37 @@
 #include <unistd.h>
 
 #include <cstring>
+#include <cstdlib>
 #include <iostream>
 #include <string>
+#include <thread>
+
+#include "functions.h"
+
+std::string get_env_or_default(const char* key, const std::string& default_value) {
+    const char* value = std::getenv(key);
+    if (value == nullptr || std::strlen(value) == 0) {
+        return default_value;
+    }
+    return value;
+}
 
 int main() {
     const int port = 8080;
+
+    std::string redis_host = get_env_or_default("REDIS_HOST", "redis");
+    std::string redis_port_raw = get_env_or_default("REDIS_PORT", "6379");
+    std::string redis_password = get_env_or_default("REDIS_PASSWORD", "123456");
+    int redis_port = std::stoi(redis_port_raw);
+
+    if (!init_redis(redis_host, redis_port, redis_password)) {
+        return 1;
+    }
+
+    std::thread subscriber([]() {
+        subscribe_redis("realtime_engine");
+    });
+    subscriber.detach();
 
     int server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
@@ -51,7 +77,7 @@ int main() {
             continue;
         }
 
-        const std::string body = "Hello from C++ HTTP vxcv撒大大哇cvserver!";
+        const std::string body = "C++ server is running and listening Redis channel realtime_engine";
         const std::string response =
             "HTTP/1.1 200 OK\r\n"
             "Content-Type: text/plain; charset=utf-8\r\n"
