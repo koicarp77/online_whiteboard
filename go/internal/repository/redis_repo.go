@@ -42,3 +42,7 @@ func (r *cacheRepository) GetRoomInfo(ctx context.Context, roomID string) (*mode
 func (r *cacheRepository) AddToActiveSet(ctx context.Context, roomID string) error {//将房间 ID 添加到 Redis Set 结构，键名为 "rooms:active"
 	return r.rdb.SAdd(ctx, "rooms:active", roomID).Err()
 }
+
+func (r *cacheRepository) PublishRoomCreated(ctx context.Context, payload string) error {
+	return r.rdb.Publish(ctx, "realtime_engine", payload).Err()
+}
