@@ -100,8 +100,12 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: 123456
+<<<<<<< HEAD
 =======
       REDIS_HOST: redis
       REDIS_PORT: 6379
 >>>>>>> df61da8 (first save)
+=======
+      JWT_SECRET: "online-whiteboard-secret"
+>>>>>>> 83b8149 (4th time)
     restart: always
