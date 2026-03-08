@@ -38,7 +38,11 @@ services:
       retries: 5
 
   cpp-server:
-    build: ./c++
+    build:
+      context: ./c++  
+      dockerfile: Dockerfile 
+      cache_from:
+        - proj-cpp-server:latest
     container_name: proj-cpp-server
     ports:
 <<<<<<< HEAD
@@ -47,6 +51,7 @@ services:
 >>>>>>> df61da8 (first save)
       - "8080:8080"
     volumes:
+<<<<<<< HEAD
       - ./c++:/app
     command: ["python3", "/app/watch.py"]
 <<<<<<< HEAD
@@ -59,6 +64,12 @@ services:
 >>>>>>> c7039e2 (init: 修改了服务器设置，包含Redis订阅代码和Docker配置)
 =======
 >>>>>>> df61da8 (first save)
+=======
+      - ./c++:/app                # 挂载源码目录
+      - cpp-build-cache:/app/build # 挂载build目录（编译产物存这里）
+    # 核心修正：启动命令指向build目录下的server
+    command: ["/app/build/server"]
+>>>>>>> bfdf4b6 (添加了websocketsever模块，添加部分库，修改了yml文件和dockerfile)
     depends_on:
       mysql:
         condition: service_healthy
@@ -71,10 +82,20 @@ services:
       REDIS_PORT: 6379
 <<<<<<< HEAD
       REDIS_PASSWORD: 123456
+<<<<<<< HEAD
 =======
 >>>>>>> df61da8 (first save)
+=======
+      JWT_SECRET: "online-whiteboard-secret"  
+      PORT: 8080 
+>>>>>>> bfdf4b6 (添加了websocketsever模块，添加部分库，修改了yml文件和dockerfile)
     restart: always
-
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8080"] 
+      interval: 5s
+      timeout: 3s
+      retries: 5
+   
   go-server:
     build:
       context: ./go

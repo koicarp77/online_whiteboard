@@ -2,7 +2,7 @@
 FROM alpine:3.18
 
 # 安装GCC 12、g++、pthread及你需要的网络库
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories && \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
     apk add --no-cache \
     gcc \
     g++ \
@@ -10,7 +10,8 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositorie
     curl-dev \
     boost-dev \
     hiredis-dev \
-    python3
+    python3 \
+    openssl-dev
 
 # 设置工作目录
 WORKDIR /app
@@ -19,7 +20,15 @@ WORKDIR /app
 COPY . .
 
 # 编译代码（根据你的需求调整链接库参数）
-RUN g++ -o server main.cpp functions.cpp -std=c++17 -lpthread -lcurl -lboost_system -lhiredis
+RUN g++ -o build/server src/*.cpp \
+        -std=c++17 \
+        -lpthread \
+        -lcurl \
+        -lboost_system \
+        -lhiredis \
+        -lcrypto \
+        -I/app/jwt-cpp/include
+   
 
 # 暴露端口
 EXPOSE 8080
