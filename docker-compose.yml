@@ -38,13 +38,19 @@ services:
       retries: 5
 
   cpp-server:
-    build: ./c++
+    build:
+      context: ./c++  
+      dockerfile: Dockerfile 
+      cache_from:
+        - proj-cpp-server:latest
     container_name: proj-cpp-server
     ports:
       - "8080:8080"
     volumes:
-      - ./c++:/app
-    command: ["python3", "/app/watch.py"]
+      - ./c++:/app                # 挂载源码目录
+      - cpp-build-cache:/app/build # 挂载build目录（编译产物存这里）
+    # 核心修正：启动命令指向build目录下的server
+    command: ["/app/build/server"]
     depends_on:
       mysql:
         condition: service_healthy
@@ -56,8 +62,15 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: 123456
+      JWT_SECRET: "online-whiteboard-secret"  
+      PORT: 8080 
     restart: always
-
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8080"] 
+      interval: 5s
+      timeout: 3s
+      retries: 5
+   
   go-server:
     build:
       context: ./go
