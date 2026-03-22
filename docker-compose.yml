@@ -1,6 +1,7 @@
 volumes:
   mysql-data:
   redis-data:
+  cpp-build-cache:
 
 services:
   mysql:
@@ -67,9 +68,14 @@ services:
 =======
       - ./c++:/app                # 挂载源码目录
       - cpp-build-cache:/app/build # 挂载build目录（编译产物存这里）
+<<<<<<< HEAD
     # 核心修正：启动命令指向build目录下的server
     command: ["/app/build/server"]
 >>>>>>> bfdf4b6 (添加了websocketsever模块，添加部分库，修改了yml文件和dockerfile)
+=======
+    # 启动热编译脚本，确保挂载源码后也会先编译出可执行文件
+    command: ["python3", "/app/watch.py"]
+>>>>>>> 6ad1a97 (完成了进入房间功能)
     depends_on:
       mysql:
         condition: service_healthy
@@ -128,5 +134,10 @@ services:
 >>>>>>> df61da8 (first save)
 =======
       JWT_SECRET: "online-whiteboard-secret"
+<<<<<<< HEAD
 >>>>>>> 83b8149 (4th time)
+=======
+      CPP_WS_HOST: "cpp-server"
+      CPP_WS_PORT: "8080"
+>>>>>>> 6ad1a97 (完成了进入房间功能)
     restart: always

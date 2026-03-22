@@ -8,6 +8,8 @@ import (
     "log"
 )
 
+const AccessTokenTTL = 15 * time.Minute
+
 //JWT 密钥，实际项目中应从配置文件或环境变量加载
 var jwtSecret []byte
 func init() {
@@ -29,7 +31,7 @@ func GenerateAccessToken(userID string) (string, error) {
     claims := Claims{
         UserID: userID,
         RegisteredClaims: jwt.RegisteredClaims{
-            ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),//令牌过期时间，，目前设置为 15 分钟
+            ExpiresAt: jwt.NewNumericDate(time.Now().Add(AccessTokenTTL)),//令牌过期时间，，目前设置为 15 分钟
             IssuedAt:  jwt.NewNumericDate(time.Now()),//令牌发行时间，设置为当前时间
             NotBefore: jwt.NewNumericDate(time.Now()),//令牌生效时间，设置为当前时间
             Issuer:    "go-server",//签发者标识，目前固定为 "go-server"
@@ -42,6 +44,11 @@ func GenerateAccessToken(userID string) (string, error) {
 
 //解析并验证给定的 JWT 字符串，若有效则返回其中携带的用户 ID，否则返回错误
 func ParseAccessToken(tokenString string) (string, error) {
+    userID, _, err := ParseAccessTokenWithStatus(tokenString)
+    return userID, err
+}
+
+func ParseAccessTokenWithStatus(tokenString string) (string, bool, error) {
     token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {//传入令牌字符串、自定义 Claims 结构（空实例，解析后会自动填充）和一个密钥查找函数（即回调）
         if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {//验证令牌的签名算法是否为 HMAC（HS256），如果不是则返回错误
             return nil, errors.New("unexpected signing method")
@@ -49,10 +56,13 @@ func ParseAccessToken(tokenString string) (string, error) {
         return jwtSecret, nil
     })
     if err != nil {
-        return "", err
+        if errors.Is(err, jwt.ErrTokenExpired) {
+            return "", true, err
+        }
+        return "", false, err
     }
     if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-        return claims.UserID, nil
+        return claims.UserID, false, nil
     }
-    return "", errors.New("invalid token")//令牌无效
+    return "", false, errors.New("invalid token")//令牌无效
 }

@@ -36,7 +36,9 @@ private:
     // 处理单个客户端会话
     void handleSession(tcp::socket socket);
     // 验证JWT Token
-    bool validateJwtToken(const std::string& token, std::string& out_user_id);
+    bool validateJwtToken(const std::string& token, std::string& out_user_id, bool& out_expired);
+    // 从握手请求中提取Bearer token
+    std::string extractTokenFromRequest(const beast::http::request<beast::http::string_body>& req);
     // 订阅Redis频道
     void subscribeRedis();
 
