@@ -18,7 +18,9 @@ FROM golang:1.22-alpine AS dev
 ENV GO111MODULE=on
 ENV GOPROXY=https://goproxy.cn,direct GOSUMDB=off
 RUN go env -w GOPROXY=https://goproxy.cn,direct
-RUN apk add --no-cache git
+# 换用阿里云 apk 源（官方源国内访问超时），安装 git
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add --no-cache git
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download

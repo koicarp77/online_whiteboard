@@ -7,8 +7,6 @@ import (
 	"online-whiteboard-go-server/internal/models"
 	"online-whiteboard-go-server/internal/repository"
 	"time"
-	"context"//用于传递超时、取消信号，贯穿整个请求生命周期
-	"errors"
 	"github.com/google/uuid"
 )
 

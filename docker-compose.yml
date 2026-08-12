@@ -40,68 +40,34 @@ services:
 
   cpp-server:
     build:
-      context: ./c++  
-      dockerfile: Dockerfile 
-      cache_from:
-        - proj-cpp-server:latest
+      context: ./c++
+      dockerfile: Dockerfile
     container_name: proj-cpp-server
     ports:
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> df61da8 (first save)
       - "8080:8080"
     volumes:
-<<<<<<< HEAD
-      - ./c++:/app
+      - ./c++:/app                # 挂载源码，配合 watch.py 热编译
+      - cpp-build-cache:/app/build # 编译产物放缓存卷，避免重复编译
     command: ["python3", "/app/watch.py"]
-<<<<<<< HEAD
-=======
-      - "8080:8080"  
-      - "3000:3000"  # 【增量新增】适配Boost.Asio WebSocket | 合作者无需注释，不影响原有使用
-    volumes:
-      - ./c++:/app  
-    command: ["python3", "/app/watch.py"]  # 【核心保留】保持原有启动指令，合作者零修改可用
->>>>>>> c7039e2 (init: 修改了服务器设置，包含Redis订阅代码和Docker配置)
-=======
->>>>>>> df61da8 (first save)
-=======
-      - ./c++:/app                # 挂载源码目录
-      - cpp-build-cache:/app/build # 挂载build目录（编译产物存这里）
-<<<<<<< HEAD
-    # 核心修正：启动命令指向build目录下的server
-    command: ["/app/build/server"]
->>>>>>> bfdf4b6 (添加了websocketsever模块，添加部分库，修改了yml文件和dockerfile)
-=======
-    # 启动热编译脚本，确保挂载源码后也会先编译出可执行文件
-    command: ["python3", "/app/watch.py"]
->>>>>>> 6ad1a97 (完成了进入房间功能)
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
+      PORT: 8080
       REDIS_HOST: redis
       REDIS_PORT: 6379
-<<<<<<< HEAD
       REDIS_PASSWORD: 123456
-<<<<<<< HEAD
-=======
->>>>>>> df61da8 (first save)
-=======
-      JWT_SECRET: "online-whiteboard-secret"  
-      PORT: 8080 
->>>>>>> bfdf4b6 (添加了websocketsever模块，添加部分库，修改了yml文件和dockerfile)
+      JWT_SECRET: "online-whiteboard-secret"
     restart: always
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8080"] 
+      # alpine 镜像无 nc，改用 python3 探测端口
+      test: ["CMD-SHELL", "python3 -c \"import socket; socket.create_connection(('localhost', 8080), 1)\""]
       interval: 5s
       timeout: 3s
       retries: 5
-   
+
   go-server:
     build:
       context: ./go
@@ -120,24 +86,13 @@ services:
     environment:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
-<<<<<<< HEAD
       MYSQL_USER: root
       MYSQL_PASSWORD: 123456
       MYSQL_DATABASE: proj_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: 123456
-<<<<<<< HEAD
-=======
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
->>>>>>> df61da8 (first save)
-=======
       JWT_SECRET: "online-whiteboard-secret"
-<<<<<<< HEAD
->>>>>>> 83b8149 (4th time)
-=======
       CPP_WS_HOST: "cpp-server"
       CPP_WS_PORT: "8080"
->>>>>>> 6ad1a97 (完成了进入房间功能)
     restart: always
