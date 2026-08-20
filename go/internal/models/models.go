@@ -40,3 +40,14 @@ type RoomResponse struct {//返回给前端或者C++语言服务端的房间信�
 	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
+type JoinRoomRequest struct {
+	RoomID string `json:"room_id"`
+}
+
+type JoinRoomResponse struct {
+	Room    *RoomResponse `json:"room"`
+	WSHost  string        `json:"ws_host"`
+	WSPort  int           `json:"ws_port"`
+	WSProto string        `json:"ws_proto"`
+}
+

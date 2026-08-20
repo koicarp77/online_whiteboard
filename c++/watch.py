@@ -24,24 +24,29 @@ def latest_mtime(paths):
     return latest
 
 def run_server():
+    os.makedirs("build", exist_ok=True)
     build = subprocess.run(
         [
             "g++",
             "-o",
-            "server",
-            "main.cpp",
-            "functions.cpp",
+            "build/server",
+            "src/main.cpp",
+            "src/WebSocketServer.cpp",
             "-std=c++17",
             "-lpthread",
             "-lcurl",
             "-lboost_system",
             "-lhiredis",
+            "-lcrypto",
+            "-I/app/include",
+            "-I/app/third_party",
+            "-I/app/third_party/jwt-cpp/include",
         ],
         check=False,
     )
     if build.returncode != 0:
         return None
-    return subprocess.Popen(["./server"], preexec_fn=os.setsid)
+    return subprocess.Popen(["./build/server"], preexec_fn=os.setsid)
 
 def stop_server(proc):
     if proc is None or proc.poll() is not None:

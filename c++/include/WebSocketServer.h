@@ -37,8 +37,10 @@ private:
     void doAccept();
     // 处理单个客户端会话
     void handleSession(tcp::socket socket);
-    // 验证JWT Token
-    bool validateJwtToken(const std::string& token, std::string& out_user_id);
+    // 验证JWT Token（out_expired 用于区分"过期"与"无效"两种401）
+    bool validateJwtToken(const std::string& token, std::string& out_user_id, bool& out_expired);
+    // 从握手请求中提取token（Authorization头或URL查询参数）
+    std::string extractTokenFromRequest(const beast::http::request<beast::http::string_body>& req);
     // 订阅Redis频道
     void subscribeRedis();
     // 将会话消息发布到Redis（带会话ID信封，供广播时排除发送者）

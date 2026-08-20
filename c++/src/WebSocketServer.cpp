@@ -2,6 +2,7 @@
 #include <iostream>
 #include <ctime>
 #include <thread>
+#include <sstream>
 #include "jwt-cpp/jwt.h"
 
 // 构造函数，初始化Asio监听器
@@ -28,6 +29,7 @@ WebSocketServer::~WebSocketServer() {
     }
     std::cout << "服务器资源已释放" << std::endl;
 }
+
 // 连接Redis并验证密码，失败返回nullptr
 static redisContext* connectRedis(const ServerConfig& config) {
     redisContext* ctx = redisConnect(config.redis_host.c_str(), config.redis_port);
@@ -64,23 +66,71 @@ bool WebSocketServer::initRedis() {
 }
 
 // JWT验证函数（jwt-cpp 0.7.0 API：先decode再verify）
-bool WebSocketServer::validateJwtToken(const std::string& token, std::string& out_user_id) {
+bool WebSocketServer::validateJwtToken(const std::string& token, std::string& out_user_id, bool& out_expired) {
+    out_expired = false;
     try {
         auto decoded = jwt::decode(token);
+
+        // 验证算法
+        if (decoded.get_header_claim("alg").as_string() != "HS256") {
+            std::cerr << "JWT算法错误" << std::endl;
+            return false;
+        }
+
+        // 验证签名
         jwt::verify()
             .allow_algorithm(jwt::algorithm::hs256{config_.jwt_secret})
             .verify(decoded);
 
-        if (!decoded.has_payload_claim("user_id")) {
+        // 提取user_id和exp
+        out_user_id = decoded.get_payload_claim("user_id").as_string();
+        std::int64_t now = std::time(nullptr);
+        std::int64_t exp = decoded.get_payload_claim("exp").as_integer();
+        if (now > exp) {
+            std::cerr << "JWT已过期" << std::endl;
+            out_expired = true;
             return false;
         }
 
-        out_user_id = decoded.get_payload_claim("user_id").as_string();
         return true;
-
     } catch (const std::exception& e) {
+        std::cerr << "JWT验证失败：" << e.what() << std::endl;
         return false;
     }
+}
+
+// 从握手请求中提取token：优先Authorization头，其次URL查询参数。
+// 浏览器WebSocket握手无法自定义Header，前端通常用 ?access_token=xxx 传token
+std::string WebSocketServer::extractTokenFromRequest(const beast::http::request<beast::http::string_body>& req) {
+    auto it = req.find(beast::http::field::authorization);
+    if (it != req.end()) {
+        std::string auth(it->value().data(), it->value().size());
+        if (auth.rfind("Bearer ", 0) == 0 && auth.size() > 7) {
+            return auth.substr(7);
+        }
+    }
+
+    std::string target(req.target().data(), req.target().size());
+    auto query_pos = target.find('?');
+    if (query_pos == std::string::npos || query_pos + 1 >= target.size()) {
+        return "";
+    }
+
+    std::string query = target.substr(query_pos + 1);
+    std::stringstream ss(query);
+    std::string pair;
+    while (std::getline(ss, pair, '&')) {
+        auto eq = pair.find('=');
+        if (eq == std::string::npos) {
+            continue;
+        }
+        std::string key = pair.substr(0, eq);
+        std::string value = pair.substr(eq + 1);
+        if (key == "access_token" || key == "token") {
+            return value;
+        }
+    }
+    return "";
 }
 
 // 异步接受连接
@@ -105,23 +155,20 @@ void WebSocketServer::handleSession(tcp::socket socket) {
         beast::flat_buffer buffer;
         beast::http::request<beast::http::string_body> http_req;
         beast::http::read(socket, buffer, http_req);
-        std::string token;
-        auto it = http_req.find(beast::http::field::authorization);
-        if (it != http_req.end()) {
-            // 新版Boost中 value() 返回 string_view，没有 to_string() 成员
-            auto auth_value = it->value();
-            std::string auth(auth_value.data(), auth_value.size());
-            if (auth.substr(0, 7) == "Bearer ") {
-                token = auth.substr(7);
-            }
-        }
+
+        std::string token = extractTokenFromRequest(http_req);
         // 验证Token
         std::string user_id;
-        if (token.empty() || !validateJwtToken(token, user_id)) {
+        bool expired = false;
+        if (token.empty() || !validateJwtToken(token, user_id, expired)) {
             beast::http::response<beast::http::string_body> res;
             res.result(beast::http::status::unauthorized);
             res.set(beast::http::field::content_type, "application/json");
-            res.body() = R"({"code":1001,"msg":"Token过期/无效"})";
+            if (expired) {
+                res.body() = R"({"code":40101,"msg":"access token expired"})";
+            } else {
+                res.body() = R"({"code":40100,"msg":"invalid access token"})";
+            }
             res.prepare_payload();
             beast::http::write(socket, res);
             return;
@@ -214,5 +261,5 @@ void WebSocketServer::subscribeRedis() {
 void WebSocketServer::run() {
     std::cout << "Boost.Asio WebSocket服务器启动，端口：" << config_.port << std::endl;
     doAccept();
-    io_context_.run(); 
+    io_context_.run();
 }

@@ -42,7 +42,9 @@ func main() {
 	roomRepo := repository.NewRoomRepository(database.DB)
 	cacheRepo := repository.NewCacheRepository(rdb)
 	roomService := service.NewRoomService(roomRepo, cacheRepo)
-	roomHandler := handler.NewRoomHandler(roomService)
+	cppHost := getEnv("CPP_WS_HOST", "cpp-server")
+	cppPort := getEnvInt("CPP_WS_PORT", 8080)
+	roomHandler := handler.NewRoomHandlerWithAuth(roomService, rdb, cppHost, cppPort)
 
 	// 注册 HTTP 路由并启动服务。
 	mux := http.NewServeMux()

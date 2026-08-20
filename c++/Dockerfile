@@ -21,7 +21,7 @@ WORKDIR /app
 COPY . .
 
 # 编译代码（根据你的需求调整链接库参数）
-RUN g++ -o build/server src/*.cpp \
+RUN mkdir -p build && g++ -o build/server src/*.cpp \
         -std=c++17 \
         -lpthread \
         -lcurl \
@@ -30,8 +30,8 @@ RUN g++ -o build/server src/*.cpp \
         -lcrypto \
         -I/app \
         -I/app/include \
+        -I/app/third_party \
         -I/app/third_party/jwt-cpp/include
-
 
 # 暴露端口
 EXPOSE 8080

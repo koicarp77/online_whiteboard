@@ -1,0 +1,279 @@
+/* ============================================================
+   在线白板 —— 整体样式
+   ============================================================ */
+
+/* --- Reset & 基础 --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary: #4f6ef7;
+  --primary-hover: #3a56d4;
+  --danger: #e74c3c;
+  --bg: #f5f6fa;
+  --card-bg: #ffffff;
+  --text: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --border: #e0e4e8;
+  --radius: 8px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* --- 视图切换 --- */
+.view { display: none; }
+
+/* --- 容器 --- */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* --- 页头 --- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.header .subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* --- 卡片 --- */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 32px;
+  margin-bottom: 20px;
+}
+
+.card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* --- 登录页 --- */
+.login-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.login-card {
+  width: 400px;
+  max-width: 90vw;
+}
+.login-card .logo {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+.login-card .slogan {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+}
+
+/* --- 表单 --- */
+.form-group {
+  margin-bottom: 16px;
+}
+.form-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+}
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79,110,247,0.15);
+}
+.form-inline {
+  display: flex;
+  gap: 8px;
+}
+
+/* --- 按钮 --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #c0392b; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { background: var(--bg); }
+.btn-sm { padding: 6px 14px; font-size: 0.82rem; }
+.btn-block { width: 100%; }
+
+/* --- 提示消息 --- */
+.msg {
+  font-size: 0.85rem;
+  min-height: 20px;
+  margin-top: 4px;
+}
+.msg:empty { display: none; }
+.msg { color: var(--danger); }
+
+/* --- 房间表格 --- */
+.room-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.room-table th, .room-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+.room-table th {
+  background: var(--bg);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.room-table tbody tr:hover { background: #f8f9fc; }
+.room-table .empty, .room-table .error, .room-table .loading {
+  text-align: center;
+  padding: 32px 12px;
+  color: var(--text-secondary);
+}
+.room-table .error { color: var(--danger); }
+
+/* --- 白板容器 --- */
+.whiteboard-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 白板顶部栏 */
+.wb-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.wb-toolbar .tool-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wb-toolbar .divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+  margin: 0 4px;
+}
+.wb-toolbar .room-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+.wb-toolbar .room-info strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* 工具按钮激活状态 */
+.tool-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.15s;
+}
+.tool-btn:hover { background: var(--bg); }
+.tool-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* 颜色选择器 */
+input[type="color"] {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 2px;
+}
+
+/* 线宽滑块 */
+input[type="range"] {
+  width: 80px;
+  cursor: pointer;
+}
+
+/* 画布区域 */
+.wb-container {
+  flex: 1;
+  position: relative;
+  background: #ffffff;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+/* --- 响应式 --- */
+@media (max-width: 768px) {
+  .container { padding: 12px; }
+  .card { padding: 20px 16px; }
+  .wb-toolbar { gap: 6px; padding: 6px 10px; }
+  .wb-toolbar .room-info { display: none; }
+}

@@ -40,16 +40,16 @@ services:
 
   cpp-server:
     build:
-      context: ./c++  
-      dockerfile: Dockerfile 
+      context: ./c++
+      dockerfile: Dockerfile
       cache_from:
         - proj-cpp-server:latest
     container_name: proj-cpp-server
     ports:
       - "8080:8080"
     volumes:
-      - ./c++:/app               
-      - cpp-build-cache:/app/build # 挂载build目录（编译产物存这里）
+      - ./c++:/app
+      - cpp-build-cache:/app/build # 编译产物放缓存卷，避免重复编译
     command: ["/app/build/server"]
     depends_on:
       mysql:
@@ -57,20 +57,18 @@ services:
       redis:
         condition: service_healthy
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
+      PORT: 8080
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: 123456
-      JWT_SECRET: "online-whiteboard-secret"  
-      PORT: 8080 
+      JWT_SECRET: "online-whiteboard-secret"
     restart: always
     healthcheck:
       test: ["CMD", "nc", "-z", "127.0.0.1", "8080"] # 服务端只监听IPv4，localhost会先解析到::1导致误判
       interval: 5s
       timeout: 3s
       retries: 5
-   
+
   go-server:
     build:
       context: ./go
@@ -96,4 +94,6 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: 123456
       JWT_SECRET: "online-whiteboard-secret"
+      CPP_WS_HOST: "cpp-server"
+      CPP_WS_PORT: "8080"
     restart: always
