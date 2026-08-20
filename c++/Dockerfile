@@ -10,6 +10,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     curl-dev \
     boost-dev \
     hiredis-dev \
+    protobuf-dev \
     python3 \
     openssl-dev
 
@@ -27,11 +28,13 @@ RUN g++ -o build/server src/*.cpp \
         -lboost_system \
         -lhiredis \
         -lcrypto \
-        -I/app/jwt-cpp/include
-   
+        -I/app \
+        -I/app/include \
+        -I/app/third_party/jwt-cpp/include
+
 
 # 暴露端口
 EXPOSE 8080
 
 # 启动服务
-CMD ["./server"]
+CMD ["./build/server"]

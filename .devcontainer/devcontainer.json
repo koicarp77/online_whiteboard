@@ -1,0 +1,15 @@
+{
+    "name": "cpp-server-dev",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "cpp-server",
+    "workspaceFolder": "/app",
+    "overrideCommand": true,
+    "shutdownAction": "none",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools"
+            ]
+        }
+    }
+}

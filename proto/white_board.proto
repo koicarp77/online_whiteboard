@@ -1,0 +1,93 @@
+syntax="proto3";
+package whiteboard; 
+
+// 全局消息头
+message MessageHeader {
+  uint64 msg_id = 1;        // 全局消息ID
+  uint64 timestamp = 2;     // 发送时间戳
+  string version = 3;       // 协议版本
+}
+
+// 消息元信息：标识用户/房间/操作类型
+message MessageMeta {
+  uint64 user_id = 1;       // 用户ID（JWT解析得到）
+  uint64 room_id = 2;       // 房间ID
+  OperateType operate_type = 3; // 操作类型（是房间相关还是绘图相关）
+  OperateId operate_id = 4;     // 具体操作ID
+}
+
+// 操作类型枚举
+enum OperateType {
+  OPERATE_TYPE_UNKNOWN = 0; 
+  OPERATE_TYPE_ROOM = 1;    // 房间相关操作
+  OPERATE_TYPE_DRAW = 2;    // 白板绘图操作
+}
+
+// 操作ID枚举（按operate_type分类）
+enum OperateId {
+  // 通用未知ID
+  OPERATE_ID_UNKNOWN = 0;
+
+  // 房间操作（operate_type=1）
+  ROOM_CREATE = 101;        // 创建房间
+  ROOM_JOIN = 102;          // 加入房间
+  ROOM_EXIT = 103;          // 退出房间
+  ROOM_KICK = 104;          // 踢除用户
+
+  // 绘图操作（operate_type=2）
+  DRAW_LINE = 201;          // 画直线
+  DRAW_CIRCLE = 202;        // 画圆
+  DRAW_RECT = 203;          // 画矩形
+  DRAW_ERASE = 204;         // 擦除图形
+  DRAW_MOVE = 205;          // 移动图形
+}
+
+// 房间操作数据（operate_type=1）
+message RoomOperateData {
+  string room_name = 1;     // 创建房间：房间名称
+  uint32 max_users = 2;     // 创建房间：最大人数
+  string password = 3;      // 加入房间：房间密码
+  string user_nickname = 4; // 加入房间：用户昵称
+  string reason = 5;        // 退出/踢除：原因
+  uint64 target_user_id = 6;// 踢除用户：目标用户ID
+}
+
+// 绘图操作数据（operate_type=2）
+message DrawOperateData {
+  // 通用绘图字段
+  string color = 1;         // 颜色16进制
+  float line_width = 2;     // 线条宽度
+
+  // 直线
+  float start_x = 3;        // 起点X坐标
+  float start_y = 4;        // 起点Y坐标
+  float end_x = 5;          // 终点X坐标
+  float end_y = 6;          // 终点Y坐标
+
+  // 圆
+  float center_x = 7;       // 圆心X坐标
+  float center_y = 8;       // 圆心Y坐标
+  float radius = 9;         // 半径
+  bool fill = 10;           // 是否填充
+
+  // 矩形
+  float left_x = 11;        // 左上角X坐标
+  float top_y = 12;         // 左上角Y坐标
+  float width = 13;         // 宽度
+  float height = 14;        // 高度
+
+  // 擦除/移动专用
+  uint64 shape_id = 15;     // 图形ID（擦除/移动指定图形）
+  float offset_x = 16;      // 移动偏移X
+  float offset_y = 17;      // 移动偏移Y
+}
+
+// 核心消息体
+message WhiteboardMessage {
+  MessageHeader header = 1; // 消息头
+  MessageMeta meta = 2;     // 消息元信息
+  oneof data {              // 动态数据
+    RoomOperateData room_data = 3; // 房间操作数据
+    DrawOperateData draw_data = 4; // 绘图操作数据
+  }
+}

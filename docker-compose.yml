@@ -1,6 +1,7 @@
 volumes:
   mysql-data:
   redis-data:
+  cpp-build-cache:
 
 services:
   mysql:
@@ -47,9 +48,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./c++:/app                # 挂载源码目录
+      - ./c++:/app               
       - cpp-build-cache:/app/build # 挂载build目录（编译产物存这里）
-    # 核心修正：启动命令指向build目录下的server
     command: ["/app/build/server"]
     depends_on:
       mysql:
@@ -66,7 +66,7 @@ services:
       PORT: 8080 
     restart: always
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8080"] 
+      test: ["CMD", "nc", "-z", "127.0.0.1", "8080"] # 服务端只监听IPv4，localhost会先解析到::1导致误判
       interval: 5s
       timeout: 3s
       retries: 5
